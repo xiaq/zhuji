@@ -22,7 +22,7 @@ func exec(words []string) {
 			} else if r, _ := utf8.DecodeRuneInString(word); in(r, numerals) {
 				num, size := ParseNumeral(word)
 				if size != len(word) {
-					fmt.Println("「%s」似数非数。", word)
+					fmt.Printf("「%s」似数非数。\n", word)
 				} else {
 					push(num)
 				}
