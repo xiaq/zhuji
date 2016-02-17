@@ -31,7 +31,13 @@ func ExecArticle(a Article) {
 
 func ShowIfNonEmpty() {
 	if len(stack) > 0 {
-		fmt.Println(stack)
+		for i, n := range stack {
+			if i > 0 {
+				fmt.Print("、")
+			}
+			fmt.Print(ToNumeral(int64(n)))
+		}
+		fmt.Println("。")
 	}
 }
 
