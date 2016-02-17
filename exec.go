@@ -52,7 +52,8 @@ func ShowIfNonEmpty() {
 }
 
 var builtins = map[string]func(){
-	"乘": 乘, "自": 自, "弃": 弃,
+	"加": 加, "和": 加, "减": 减, "乘": 乘, "除": 除,
+	"自": 自, "弃": 弃,
 }
 
 func first() int64 {
@@ -73,26 +74,52 @@ func push(i int64) {
 	stack = append(stack, i)
 }
 
-func 自() {
-	if len(stack) < 1 {
-		fmt.Println("无元。")
-	} else {
-		push(first())
+func atleast(n int) bool {
+	if len(stack) < n {
+		if n == 1 {
+			fmt.Println("无元。")
+		} else {
+			fmt.Printf("无%s元。\n", ToNumeral(int64(n)))
+		}
+		return false
+	}
+	return true
+}
+
+func 加() {
+	if atleast(2) {
+		push(pop() + pop())
+	}
+}
+
+func 减() {
+	if atleast(2) {
+		push(-(pop() - pop()))
 	}
 }
 
 func 乘() {
-	if len(stack) < 2 {
-		fmt.Println("无二元。")
-	} else {
+	if atleast(2) {
 		push(pop() * pop())
 	}
 }
 
+func 除() {
+	if atleast(2) {
+		a := pop()
+		b := pop()
+		push(b / a)
+	}
+}
+
+func 自() {
+	if atleast(1) {
+		push(first())
+	}
+}
+
 func 弃() {
-	if len(stack) < 1 {
-		fmt.Println("无元。")
-	} else {
+	if atleast(1) {
 		pop()
 	}
 }
