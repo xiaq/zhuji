@@ -7,7 +7,7 @@ import (
 
 var ones = "零一二三四五六七八九"
 
-var alphabet = ones + "十千百万亿"
+var numerals = ones + "十千百万亿"
 
 var tens = []struct {
 	s string

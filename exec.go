@@ -1,10 +1,13 @@
 package zhuji
 
-import "fmt"
+import (
+	"fmt"
+	"unicode/utf8"
+)
 
 var (
 	defs  = map[string][]string{}
-	stack []int
+	stack []int64
 )
 
 func exec(words []string) {
@@ -16,8 +19,15 @@ func exec(words []string) {
 				exec(def)
 			} else if builtin, ok := builtins[word]; ok {
 				builtin()
+			} else if r, _ := utf8.DecodeRuneInString(word); in(r, numerals) {
+				num, size := ParseNumeral(word)
+				if size != len(word) {
+					fmt.Println("「%s」似数非数。", word)
+				} else {
+					push(num)
+				}
 			} else {
-				fmt.Printf("无%s\n", word)
+				fmt.Printf("无「%s」。\n", word)
 			}
 		}
 	}
@@ -42,38 +52,26 @@ func ShowIfNonEmpty() {
 }
 
 var builtins = map[string]func(){
-	"零": 零, "一": 一, "二": 二, "三": 三, "四": 四, "五": 五, "六": 六, "七": 七, "八": 八, "九": 九, "十": 十, "乘": 乘, "自": 自, "弃": 弃,
+	"乘": 乘, "自": 自, "弃": 弃,
 }
 
-func first() int {
+func first() int64 {
 	return stack[len(stack)-1]
 }
 
-func second() int {
+func second() int64 {
 	return stack[len(stack)-2]
 }
 
-func pop() int {
+func pop() int64 {
 	i := first()
 	stack = stack[:len(stack)-1]
 	return i
 }
 
-func push(i int) {
+func push(i int64) {
 	stack = append(stack, i)
 }
-
-func 零() { push(0) }
-func 一() { push(1) }
-func 二() { push(2) }
-func 三() { push(3) }
-func 四() { push(4) }
-func 五() { push(5) }
-func 六() { push(6) }
-func 七() { push(7) }
-func 八() { push(8) }
-func 九() { push(9) }
-func 十() { push(10) }
 
 func 自() {
 	if len(stack) < 1 {

@@ -55,25 +55,30 @@ func (p *parser) uptoAny(chars string) string {
 	return p.to(strings.IndexAny(p.rest(), chars))
 }
 
+func in(r rune, s string) bool {
+	return strings.ContainsRune(s, r)
+}
+
 // Parsing functions.
 
-var keywords = "零一二三四五六七八九十者自"
-
-func isKeyword(r rune) bool {
-	return strings.IndexRune(keywords, r) != -1
-}
+var keywords = "者自"
 
 func (p *parser) word() string {
 	begin := p.pos
 
-	if isKeyword(p.next()) {
+	if r := p.next(); in(r, keywords) {
+		return p.from(begin)
+	} else if in(r, numerals) {
+		for in(p.peek(), numerals) {
+			p.next()
+		}
 		return p.from(begin)
 	}
 
 	for !p.eof() {
 		r := p.peek()
 
-		if isKeyword(r) || strings.ContainsRune("、，。也\n", r) {
+		if in(r, keywords) || in(r, "、，。也\n") {
 			return p.from(begin)
 		}
 		p.next()
@@ -91,11 +96,11 @@ func (p *parser) sentence() Sentence {
 		s.Words = append(s.Words, p.word())
 		for !p.eof() {
 			r := p.peek()
-			if strings.ContainsRune("、，", r) {
+			if in(r, "、，") {
 				p.next()
-			} else if strings.ContainsRune("。也\n", r) {
+			} else if in(r, "。也\n") {
 				p.next()
-				for strings.ContainsRune("。也\n", p.peek()) {
+				for in(p.peek(), "。也\n") {
 					p.next()
 				}
 				return s
