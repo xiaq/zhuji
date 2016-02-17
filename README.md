@@ -2,7 +2,7 @@
 
 ## 获取
 
-下载[Linux 二进制包](http://dl.elvish.io/%e7%8f%a0%e7%8e%91)或 `go get -u github.com/xiaq/zhuji/珠玑`。
+下载 [Linux 二进制包](http://dl.elvish.io/%e7%8f%a0%e7%8e%91)或 `go get -u github.com/xiaq/zhuji/珠玑`。
 
 ## 例程
 
