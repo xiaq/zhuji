@@ -1,8 +1,6 @@
 # 珠玑
 
-## 获取
-
-下载 [Linux 二进制包](http://dl.elvish.io/%e7%8f%a0%e7%8e%91)或 `go get -u github.com/xiaq/zhuji/珠玑`。
+珠玑者算机语也。
 
 ## 例程
 
@@ -20,3 +18,7 @@
 珠玑> 弃。
 无元。
 ```
+
+## 获取
+
+下载 [Linux 二进制包](http://dl.elvish.io/%e7%8f%a0%e7%8e%91)或 `go get -u github.com/xiaq/zhuji/珠玑`。
