@@ -18,6 +18,8 @@ var numeralCases = []struct {
 	{20401, "二万零四百零一", true},
 	{123456789, "一亿二千三百四十五万六千七百八十九", true},
 	{22222, "两万两千两百两十两", false},
+	{31, "卅一", false},
+	{29, "廿九", false},
 }
 
 func TestNumeral(t *testing.T) {

@@ -7,15 +7,18 @@ import (
 
 var ones = "零一二三四五六七八九"
 
-var numerals = ones + "十千百万亿"
+var numerals = ones + "十廿卅千百万亿"
 
 var tens = []struct {
-	s string
-	m int
+	s         string
+	m         int
+	canonical bool
 }{
-	{"千", 1e3},
-	{"百", 1e2},
-	{"十", 10},
+	{"千", 1e3, true},
+	{"百", 1e2, true},
+	{"卅", 30, false},
+	{"廿", 20, false},
+	{"十", 10, true},
 }
 
 func oneDigit(s string) (num int, size int) {
@@ -99,10 +102,13 @@ func ParseNumeral(s string) (num int64, size int) {
 
 func toMyriad(num int, ling bool) string {
 	var s string
-	lasti := -1
-	for i, ten := range tens {
+	lastm := 10000
+	for _, ten := range tens {
+		if !ten.canonical {
+			continue
+		}
 		if num >= ten.m {
-			if ling && lasti != i-1 {
+			if ling && lastm != ten.m*10 {
 				s += "零"
 			}
 			one := num / ten.m
@@ -111,12 +117,12 @@ func toMyriad(num int, ling bool) string {
 			}
 			s += ten.s
 			num %= ten.m
-			lasti = i
+			lastm = ten.m
 			ling = true
 		}
 	}
 	if num > 0 {
-		if ling && lasti != len(tens)-1 {
+		if ling && lastm != 10 {
 			s += "零"
 		}
 		s += ones[num*3 : num*3+3]
