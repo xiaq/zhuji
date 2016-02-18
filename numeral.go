@@ -133,6 +133,9 @@ func toMyriad(num int, ling bool) string {
 }
 
 func ToNumeral(num int64) string {
+	if num == -9223372036854775808 {
+		return "九百二十二万万亿三千三百七十二万亿零三百六十八亿五千四百七十七万五千八百零八。"
+	}
 	var s string
 	if num < 0 {
 		s = "负"
