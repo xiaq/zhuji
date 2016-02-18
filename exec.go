@@ -49,7 +49,7 @@ func ShowIfNonEmpty() {
 }
 
 var builtins = map[string]func(){
-	"加": 加, "和": 加, "减": 减, "乘": 乘, "除": 除,
+	"加": 加, "和": 加, "减": 减, "负": 负, "乘": 乘, "除": 除,
 	"次方": 次方,
 	"自":  自, "弃": 弃,
 }
@@ -93,6 +93,12 @@ func 加() {
 func 减() {
 	if atleast(2) {
 		push(-(pop() - pop()))
+	}
+}
+
+func 负() {
+	if atleast(1) {
+		push(-pop())
 	}
 }
 
