@@ -8,78 +8,61 @@ import (
 var (
 	defs  = map[string][]*Word{}
 	stack []int64
+	conds []bool
 )
 
-func exec(words []*Word) (rest []*Word) {
+func exec(words []*Word) bool {
 	if len(words) > 1 && words[1].Name == "者" {
 		defs[words[0].Name] = words[2:]
-		return nil
+		return true
 	}
+
+	nconds := len(conds)
+	defer func() { conds = conds[:nconds] }()
+
 	for i := range words {
 		word := words[i]
-		// for _, word := range words {
-		if def, ok := defs[word.Name]; ok {
-			exec(def)
-		} else if builtin, ok := builtins[word.Name]; ok {
-			builtin()
-		} else if word.isNumeral() {
+		if f := find(word); f != nil {
+			if shoulddo() {
+				f()
+			}
+		} else if f, ok := controls[word.Name]; ok {
+			ok = f()
+			if !ok {
+				return false
+			}
+		} else {
+			fmt.Printf("无「%s」。\n", word.Name)
+		}
+	}
+	return true
+}
+
+func shoulddo() bool {
+	for _, cond := range conds {
+		if !cond {
+			return false
+		}
+	}
+	return true
+}
+
+func find(word *Word) func() {
+	if def, ok := defs[word.Name]; ok {
+		// Defined word.
+		return func() { exec(def) }
+	} else if builtin, ok := builtins[word.Name]; ok {
+		// Builtin word.
+		return builtin
+	} else if word.isNumeral() {
+		// Numeric word.
+		return func() {
 			num, rest := ParseNumeral(word.Name)
 			if rest != "" {
 				fmt.Printf("「%s」似数非数。\n", word.Name)
 			} else {
 				push(num)
 			}
-		} else if word.Name == "若" {
-			rest := exec(words[i+1:])
-			if len(rest) == 0 || rest[0].Name != "则" {
-				fmt.Println("有若无则，不知其可。")
-				return nil
-			}
-			if len(stack) == 0 {
-				fmt.Println("栈上无元，不知其可。")
-				return nil
-			}
-			rest = rest[1:]
-			if pop() != 0 {
-				// Take the 则 branch.
-				// fmt.Println("则", printWords(rest))
-				rest = exec(rest)
-				if len(rest) == 0 || (rest[0].Name != "非" && rest[0].Name != "毕") {
-					fmt.Println("有若无非无毕，不知其可。")
-					return nil
-				}
-				name := rest[0].Name
-				rest = rest[1:]
-				if name == "非" {
-					for i, w := range rest {
-						if w.Name == "毕" {
-							return rest[i+1:]
-						}
-					}
-					fmt.Println("有非无毕，不知其可。")
-					return nil
-				}
-			} else {
-				// Take the 非 branch if it exists
-				for i, w := range rest {
-					if w.Name == "毕" {
-						return rest[i+1:]
-					} else if w.Name == "非" {
-						// fmt.Println("非", printWords(rest[i+1:]))
-						rest = exec(rest[i+1:])
-						if len(rest) == 0 || rest[0].Name != "毕" {
-							fmt.Println("有非无毕，不知其可。")
-							return nil
-						}
-						return rest[1:]
-					}
-				}
-				fmt.Println("有若无毕，不知其可。")
-			}
-		} else if word.Name == "则" || word.Name == "非" || word.Name == "毕" {
-			return words[i:]
-		} else {
-			fmt.Printf("无「%s」。\n", word.Name)
 		}
 	}
 	return nil
@@ -87,10 +70,7 @@ func exec(words []*Word) (rest []*Word) {
 
 func ExecArticle(a Article) {
 	for _, s := range a.Sentences {
-		rest := exec(s.Words)
-		if len(rest) > 0 {
-			fmt.Println("尚有「%s」，不知其可。", printWords(rest))
-		}
+		exec(s.Words)
 	}
 }
 
@@ -115,6 +95,38 @@ func ShowIfNonEmpty() {
 		}
 		fmt.Println("。")
 	}
+}
+
+var controls = map[string]func() bool{
+	"则": 则, "非": 非, "毕": 毕,
+}
+
+func 则() bool {
+	if len(stack) == 0 {
+		fmt.Println("栈上无元，不知其可。")
+		return false
+	}
+	conds = append(conds, pop() != 0)
+	return true
+}
+
+func 非() bool {
+	if len(conds) == 0 {
+		fmt.Println("无则有非，不知其可。")
+		return false
+	}
+	c := &conds[len(conds)-1]
+	*c = !*c
+	return true
+}
+
+func 毕() bool {
+	if len(conds) == 0 {
+		fmt.Println("无则有毕，不知其可。")
+		return false
+	}
+	conds = conds[:len(conds)-1]
+	return true
 }
 
 var builtins = map[string]func(){
