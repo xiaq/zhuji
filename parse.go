@@ -65,6 +65,11 @@ type Word struct {
 	Name string
 }
 
+func (w *Word) isNumeral() bool {
+	r, _ := utf8.DecodeRuneInString(w.Name)
+	return in(r, numerals)
+}
+
 var keywords = "者自"
 
 func (p *parser) word() (w *Word) {
@@ -87,7 +92,7 @@ func (p *parser) word() (w *Word) {
 	for !p.eof() {
 		r := p.peek()
 
-		if in(r, keywords) || in(r, "、，。也\n") {
+		if in(r, numerals) || in(r, keywords) || in(r, "、，。也\n") {
 			return
 		}
 		p.next()
@@ -101,12 +106,22 @@ type Sentence struct {
 
 func (p *parser) sentence() Sentence {
 	s := Sentence{}
+	jux := false
 	for !p.eof() {
-		s.Words = append(s.Words, p.word())
+		word := p.word()
+		s.Words = append(s.Words, word)
+		if jux && word.isNumeral() {
+			// Numeral juxtaposes another word: swap. This enables infix
+			// notation.
+			n := len(s.Words)
+			s.Words[n-1], s.Words[n-2] = s.Words[n-2], s.Words[n-1]
+		}
+		jux = true
 		for !p.eof() {
 			r := p.peek()
 			if in(r, "、，") {
 				p.next()
+				jux = false
 			} else if in(r, "。也\n") {
 				p.next()
 				for in(p.peek(), "。也\n") {

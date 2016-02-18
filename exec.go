@@ -1,9 +1,6 @@
 package zhuji
 
-import (
-	"fmt"
-	"unicode/utf8"
-)
+import "fmt"
 
 var (
 	defs  = map[string][]*Word{}
@@ -19,15 +16,15 @@ func exec(words []*Word) {
 				exec(def)
 			} else if builtin, ok := builtins[word.Name]; ok {
 				builtin()
-			} else if r, _ := utf8.DecodeRuneInString(word.Name); in(r, numerals) {
+			} else if word.isNumeral() {
 				num, rest := ParseNumeral(word.Name)
 				if rest != "" {
-					fmt.Printf("「%s」似数非数。\n", word)
+					fmt.Printf("「%s」似数非数。\n", word.Name)
 				} else {
 					push(num)
 				}
 			} else {
-				fmt.Printf("无「%s」。\n", word)
+				fmt.Printf("无「%s」。\n", word.Name)
 			}
 		}
 	}
