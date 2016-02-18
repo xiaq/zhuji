@@ -49,9 +49,13 @@ func ShowIfNonEmpty() {
 }
 
 var builtins = map[string]func(){
+	// Arithmetic operations.
 	"加": 加, "和": 加, "减": 减, "负": 负, "乘": 乘, "除": 除,
 	"次方": 次方,
-	"复":  自, "自": 自, "弃": 弃,
+	// Arithmetic predicates.
+	"等于": 等于, "大于": 大于, "小于": 小于,
+	// Stack operations.
+	"复": 自, "自": 自, "弃": 弃,
 }
 
 func first() int64 {
@@ -70,6 +74,14 @@ func pop() int64 {
 
 func push(i int64) {
 	stack = append(stack, i)
+}
+
+func pushBool(b bool) {
+	if b {
+		push(-1)
+	} else {
+		push(0)
+	}
 }
 
 func atleast(n int) bool {
@@ -136,6 +148,23 @@ func 次方() {
 	}
 }
 
+func 等于() {
+	if atleast(2) {
+		pushBool(pop() == pop())
+	}
+}
+
+func 小于() {
+	if atleast(2) {
+		pushBool(pop() > pop())
+	}
+}
+
+func 大于() {
+	if atleast(2) {
+		pushBool(pop() < pop())
+	}
+}
 func 自() {
 	if atleast(1) {
 		push(first())
