@@ -63,7 +63,7 @@ func in(r rune, s string) bool {
 
 var (
 	keywords    = "者自若则非毕"
-	wordSep     = "、，；"
+	wordSep     = "、，：；"
 	sentenceSep = "也。\n"
 	wordTerm    = wordSep + sentenceSep
 )
