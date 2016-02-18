@@ -61,33 +61,42 @@ func in(r rune, s string) bool {
 
 // Parsing functions.
 
+type Word struct {
+	Name string
+}
+
 var keywords = "者自"
 
-func (p *parser) word() string {
+func (p *parser) word() (w *Word) {
 	begin := p.pos
 
+	w = &Word{}
+	defer func() {
+		w.Name = p.from(begin)
+	}()
+
 	if r := p.next(); in(r, keywords) {
-		return p.from(begin)
+		return
 	} else if in(r, numerals) {
 		for in(p.peek(), numerals) {
 			p.next()
 		}
-		return p.from(begin)
+		return
 	}
 
 	for !p.eof() {
 		r := p.peek()
 
 		if in(r, keywords) || in(r, "、，。也\n") {
-			return p.from(begin)
+			return
 		}
 		p.next()
 	}
-	return p.from(begin)
+	return
 }
 
 type Sentence struct {
-	Words []string
+	Words []*Word
 }
 
 func (p *parser) sentence() Sentence {

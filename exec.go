@@ -6,21 +6,21 @@ import (
 )
 
 var (
-	defs  = map[string][]string{}
+	defs  = map[string][]*Word{}
 	stack []int64
 )
 
-func exec(words []string) {
-	if len(words) > 1 && words[1] == "者" {
-		defs[words[0]] = words[2:]
+func exec(words []*Word) {
+	if len(words) > 1 && words[1].Name == "者" {
+		defs[words[0].Name] = words[2:]
 	} else {
 		for _, word := range words {
-			if def, ok := defs[word]; ok {
+			if def, ok := defs[word.Name]; ok {
 				exec(def)
-			} else if builtin, ok := builtins[word]; ok {
+			} else if builtin, ok := builtins[word.Name]; ok {
 				builtin()
-			} else if r, _ := utf8.DecodeRuneInString(word); in(r, numerals) {
-				num, rest := ParseNumeral(word)
+			} else if r, _ := utf8.DecodeRuneInString(word.Name); in(r, numerals) {
+				num, rest := ParseNumeral(word.Name)
 				if rest != "" {
 					fmt.Printf("「%s」似数非数。\n", word)
 				} else {
