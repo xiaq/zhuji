@@ -124,7 +124,7 @@ var builtins = map[string]func(){
 	// Arithmetic predicates.
 	"等于": 等于, "大于": 大于, "小于": 小于,
 	// Stack operations.
-	"复": 自, "自": 自, "弃": 弃,
+	"复": 自, "易": 易, "自": 自, "弃": 弃,
 }
 
 func top() int64 {
@@ -230,6 +230,16 @@ func 大于() {
 		pushBool(pop() < pop())
 	}
 }
+
+func 易() {
+	if atleast(2) {
+		a := pop()
+		b := pop()
+		push(a)
+		push(b)
+	}
+}
+
 func 自() {
 	if atleast(1) {
 		push(top())
