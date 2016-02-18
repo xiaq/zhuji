@@ -83,11 +83,17 @@ func ParseNumeral(s string) (num int64, size int) {
 	}
 	for _, myriad := range myriads {
 		if i := strings.Index(s, myriad.s); i != -1 {
-			n, j := inMyriad(s[:i])
-			if j != i {
-				return 0, 0
+			var n int
+			if i == 0 {
+				n = 1
+			} else {
+				var j int
+				n, j = inMyriad(s[:i])
+				if j != i {
+					return 0, 0
+				}
 			}
-			num += int64(n) * int64(myriad.m)
+			num += int64(n) * myriad.m
 			size += i + len(myriad.s)
 			s = s[i+len(myriad.s):]
 		}
@@ -126,9 +132,6 @@ func toMyriad(num int, ling bool) string {
 			s += "零"
 		}
 		s += ones[num*3 : num*3+3]
-	}
-	if ling && s == "" {
-		s = "零"
 	}
 	return s
 }
