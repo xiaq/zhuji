@@ -53,7 +53,8 @@ func ShowIfNonEmpty() {
 
 var builtins = map[string]func(){
 	"加": 加, "和": 加, "减": 减, "乘": 乘, "除": 除,
-	"自": 自, "弃": 弃,
+	"次方": 次方,
+	"自":  自, "弃": 弃,
 }
 
 func first() int64 {
@@ -109,6 +110,26 @@ func 除() {
 		a := pop()
 		b := pop()
 		push(b / a)
+	}
+}
+
+func pow(b, n int64) int64 {
+	if n == 0 {
+		return 1
+	}
+	x := pow(b, n/2)
+	x *= x
+	if n%2 == 1 {
+		x *= b
+	}
+	return x
+}
+
+func 次方() {
+	if atleast(2) {
+		a := pop()
+		b := pop()
+		push(pow(b, a))
 	}
 }
 
