@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -10,7 +11,10 @@ import (
 	"github.com/xiaq/zhuji"
 )
 
+var debug = flag.Bool("debug", false, "debug")
+
 func main() {
+	flag.Parse()
 	stdin := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("珠玑> ")
@@ -23,7 +27,9 @@ func main() {
 			continue
 		}
 		article := zhuji.Parse(line[:len(line)-1])
-		// fmt.Println(article)
+		if *debug {
+			fmt.Println(article)
+		}
 		zhuji.ExecArticle(article)
 		zhuji.ShowIfNonEmpty()
 	}

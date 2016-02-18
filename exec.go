@@ -1,39 +1,108 @@
 package zhuji
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 var (
 	defs  = map[string][]*Word{}
 	stack []int64
 )
 
-func exec(words []*Word) {
+func exec(words []*Word) (rest []*Word) {
 	if len(words) > 1 && words[1].Name == "者" {
 		defs[words[0].Name] = words[2:]
-	} else {
-		for _, word := range words {
-			if def, ok := defs[word.Name]; ok {
-				exec(def)
-			} else if builtin, ok := builtins[word.Name]; ok {
-				builtin()
-			} else if word.isNumeral() {
-				num, rest := ParseNumeral(word.Name)
-				if rest != "" {
-					fmt.Printf("「%s」似数非数。\n", word.Name)
-				} else {
-					push(num)
+		return nil
+	}
+	for i := range words {
+		word := words[i]
+		// for _, word := range words {
+		if def, ok := defs[word.Name]; ok {
+			exec(def)
+		} else if builtin, ok := builtins[word.Name]; ok {
+			builtin()
+		} else if word.isNumeral() {
+			num, rest := ParseNumeral(word.Name)
+			if rest != "" {
+				fmt.Printf("「%s」似数非数。\n", word.Name)
+			} else {
+				push(num)
+			}
+		} else if word.Name == "若" {
+			rest := exec(words[i+1:])
+			if len(rest) == 0 || rest[0].Name != "则" {
+				fmt.Println("有若无则，不知其可。")
+				return nil
+			}
+			if len(stack) == 0 {
+				fmt.Println("栈上无元，不知其可。")
+				return nil
+			}
+			rest = rest[1:]
+			if pop() != 0 {
+				// Take the 则 branch.
+				// fmt.Println("则", printWords(rest))
+				rest = exec(rest)
+				if len(rest) == 0 || (rest[0].Name != "非" && rest[0].Name != "毕") {
+					fmt.Println("有若无非无毕，不知其可。")
+					return nil
+				}
+				name := rest[0].Name
+				rest = rest[1:]
+				if name == "非" {
+					for i, w := range rest {
+						if w.Name == "毕" {
+							return rest[i+1:]
+						}
+					}
+					fmt.Println("有非无毕，不知其可。")
+					return nil
 				}
 			} else {
-				fmt.Printf("无「%s」。\n", word.Name)
+				// Take the 非 branch if it exists
+				for i, w := range rest {
+					if w.Name == "毕" {
+						return rest[i+1:]
+					} else if w.Name == "非" {
+						// fmt.Println("非", printWords(rest[i+1:]))
+						rest = exec(rest[i+1:])
+						if len(rest) == 0 || rest[0].Name != "毕" {
+							fmt.Println("有非无毕，不知其可。")
+							return nil
+						}
+						return rest[1:]
+					}
+				}
+				fmt.Println("有若无毕，不知其可。")
 			}
+		} else if word.Name == "则" || word.Name == "非" || word.Name == "毕" {
+			return words[i:]
+		} else {
+			fmt.Printf("无「%s」。\n", word.Name)
 		}
 	}
+	return nil
 }
 
 func ExecArticle(a Article) {
 	for _, s := range a.Sentences {
-		exec(s.Words)
+		rest := exec(s.Words)
+		if len(rest) > 0 {
+			fmt.Println("尚有「%s」，不知其可。", printWords(rest))
+		}
 	}
+}
+
+func printWords(words []*Word) string {
+	var b bytes.Buffer
+	for i, w := range words {
+		if i > 0 {
+			b.WriteRune('、')
+		}
+		b.WriteString(w.Name)
+	}
+	return b.String()
 }
 
 func ShowIfNonEmpty() {
@@ -58,16 +127,12 @@ var builtins = map[string]func(){
 	"复": 自, "自": 自, "弃": 弃,
 }
 
-func first() int64 {
+func top() int64 {
 	return stack[len(stack)-1]
 }
 
-func second() int64 {
-	return stack[len(stack)-2]
-}
-
 func pop() int64 {
-	i := first()
+	i := top()
 	stack = stack[:len(stack)-1]
 	return i
 }
@@ -167,7 +232,7 @@ func 大于() {
 }
 func 自() {
 	if atleast(1) {
-		push(first())
+		push(top())
 	}
 }
 

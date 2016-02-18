@@ -62,19 +62,24 @@ func in(r rune, s string) bool {
 // Parsing functions.
 
 var (
-	keywords    = "者自"
+	keywords    = "者自若则非毕"
 	wordSep     = "、，；"
 	sentenceSep = "也。\n"
 	wordTerm    = wordSep + sentenceSep
 )
 
 type Word struct {
-	Name string
+	Name      string
+	IsKeyword bool
 }
 
 func (w *Word) isNumeral() bool {
 	r, _ := utf8.DecodeRuneInString(w.Name)
 	return in(r, numerals)
+}
+
+func (w *Word) String() string {
+	return w.Name
 }
 
 func (p *parser) word() (w *Word) {
@@ -86,6 +91,7 @@ func (p *parser) word() (w *Word) {
 	}()
 
 	if r := p.next(); in(r, keywords) {
+		w.IsKeyword = true
 		return
 	} else if in(r, numerals) {
 		for in(p.peek(), numerals) {
@@ -116,10 +122,12 @@ func (p *parser) sentence() Sentence {
 		word := p.word()
 		s.Words = append(s.Words, word)
 		if jux && word.isNumeral() {
-			// Numeral juxtaposes another word: swap. This enables infix
-			// notation.
+			// Numeral juxtaposes another word: swap unless the previous word
+			// is a keyword. This enables infix notation.
 			n := len(s.Words)
-			s.Words[n-1], s.Words[n-2] = s.Words[n-2], s.Words[n-1]
+			if !s.Words[n-2].IsKeyword {
+				s.Words[n-1], s.Words[n-2] = s.Words[n-2], s.Words[n-1]
+			}
 		}
 		jux = true
 		for !p.eof() {
