@@ -51,7 +51,7 @@ func ShowIfNonEmpty() {
 var builtins = map[string]func(){
 	"加": 加, "和": 加, "减": 减, "负": 负, "乘": 乘, "除": 除,
 	"次方": 次方,
-	"自":  自, "弃": 弃,
+	"复":  自, "自": 自, "弃": 弃,
 }
 
 func first() int64 {
