@@ -26,10 +26,10 @@ var numeralCases = []struct {
 
 func TestNumeral(t *testing.T) {
 	for _, tc := range numeralCases {
-		num, size := ParseNumeral(tc.s)
-		if num != tc.num || size != len(tc.s) {
-			t.Errorf("ParseNumeral(\"%s\") => (%d, %d), want (%d, %d)",
-				tc.s, num, size, tc.num, len(tc.s))
+		num, rest := ParseNumeral(tc.s)
+		if num != tc.num || rest != "" {
+			t.Errorf(`ParseNumeral(%s) => (%d, %s), want (%d, "")`,
+				tc.s, num, rest, tc.num)
 		}
 		if tc.canonical {
 			s := ToNumeral(tc.num)

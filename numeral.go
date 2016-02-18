@@ -21,46 +21,44 @@ var tens = []struct {
 	{"十", 10, true},
 }
 
-func oneDigit(s string) (num int, size int) {
+func oneDigit(s string) (num int, rest string) {
 	if len(s) != 3 {
-		return 0, 0
+		return 0, s
 	}
 	i := strings.Index(ones, s)
 	if i == -1 {
 		if s == "两" {
-			return 2, 3
+			return 2, ""
 		}
-		return 0, 0
+		return 0, s
 	}
-	return i / 3, len(s)
+	return i / 3, ""
 }
 
-func inMyriad(s string) (num int, size int) {
+func inMyriad(s string) (num int, rest string) {
 	for _, digit := range tens {
 		if r, si := utf8.DecodeRuneInString(s); r == '零' {
-			size += si
 			s = s[si:]
 			continue
 		}
 
 		if i := strings.Index(s, digit.s); i != -1 {
-			n, j := oneDigit(s[:i])
+			n, r := oneDigit(s[:i])
 			// fmt.Printf("%s at %d: %d, %d (%s)\n", digit.s, i, n, j, s)
-			if j != i {
-				return 0, 0
+			if r != "" {
+				return 0, s
 			}
 			if i == 0 {
 				n = 1
 			}
 			num += n * digit.m
-			size += i + len(digit.s)
 			s = s[i+len(digit.s):]
 		}
 	}
-	n, j := oneDigit(s)
+	n, r := oneDigit(s)
 	num += n
-	size += j
-	return
+	s = r
+	return num, s
 }
 
 var myriads = []struct {
@@ -74,12 +72,11 @@ var myriads = []struct {
 	{"万", 1e4},
 }
 
-func ParseNumeral(s string) (num int64, size int) {
+func ParseNumeral(s string) (num int64, rest string) {
 	m := int64(1)
 	if r, si := utf8.DecodeRuneInString(s); r == '负' {
 		m = -1
 		s = s[si:]
-		size += si
 	}
 	for _, myriad := range myriads {
 		if i := strings.Index(s, myriad.s); i != -1 {
@@ -87,23 +84,22 @@ func ParseNumeral(s string) (num int64, size int) {
 			if i == 0 {
 				n = 1
 			} else {
-				var j int
-				n, j = inMyriad(s[:i])
-				if j != i {
-					return 0, 0
+				var rest string
+				n, rest = inMyriad(s[:i])
+				if rest != "" {
+					return 0, s
 				}
 			}
 			num += int64(n) * myriad.m
-			size += i + len(myriad.s)
 			s = s[i+len(myriad.s):]
 		}
 	}
-	n, j := inMyriad(s)
+	n, rest := inMyriad(s)
 	num += int64(n)
-	size += j
+	s = rest
 
 	num *= m
-	return
+	return num, s
 }
 
 func toMyriad(num int, ling bool) string {

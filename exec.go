@@ -20,8 +20,8 @@ func exec(words []string) {
 			} else if builtin, ok := builtins[word]; ok {
 				builtin()
 			} else if r, _ := utf8.DecodeRuneInString(word); in(r, numerals) {
-				num, size := ParseNumeral(word)
-				if size != len(word) {
+				num, rest := ParseNumeral(word)
+				if rest != "" {
 					fmt.Printf("「%s」似数非数。\n", word)
 				} else {
 					push(num)
