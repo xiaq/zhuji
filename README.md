@@ -2,11 +2,11 @@
 
 珠玑者算机语也。
 
-## 获取
+## 使用
 
-二进制包：[Linux](https://dl.elvish.io/%e7%8f%a0%e7%8e%91-linux)、[OS X](https://dl.elvish.io/%e7%8f%a0%e7%8e%91-osx)。
+下载二进制包：[Linux](https://dl.elvish.io/%e7%8f%a0%e7%8e%91-linux)、[OS X](https://dl.elvish.io/%e7%8f%a0%e7%8e%91-osx)。下载下来的文件不带可执行属性，还需 `chmod +x 珠玑`。珠玑暂不自带编辑功能，建议用 `rlwrap ./珠玑` 来运行。
 
-从源码构建：`go get -u github.com/xiaq/zhuji/zhuji`。
+也可以从源码构建：`go get -u github.com/xiaq/zhuji/zhuji`。
 
 ## 例程
 
