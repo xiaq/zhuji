@@ -1,0 +1,9 @@
+language: go
+go:
+    - 1.5
+sudo: false
+os:
+    - linux
+    - osx
+script:
+    make travis
