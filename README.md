@@ -23,6 +23,6 @@
 
 ## 获取
 
-二进制包：[Linux](http://dl.elvish.io/%e7%8f%a0%e7%8e%91-linux)、[OS X](http://dl.elvish.io/%e7%8f%a0%e7%8e%91-osx)。
+二进制包：[Linux](https://dl.elvish.io/%e7%8f%a0%e7%8e%91-linux)、[OS X](https://dl.elvish.io/%e7%8f%a0%e7%8e%91-osx)。
 
 从源码构建：`go get -u github.com/xiaq/zhuji/zhuji`。
