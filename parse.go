@@ -61,6 +61,13 @@ func in(r rune, s string) bool {
 
 // Parsing functions.
 
+var (
+	keywords    = "者自"
+	wordSep     = "、，；"
+	sentenceSep = "也。\n"
+	wordTerm    = wordSep + sentenceSep
+)
+
 type Word struct {
 	Name string
 }
@@ -69,8 +76,6 @@ func (w *Word) isNumeral() bool {
 	r, _ := utf8.DecodeRuneInString(w.Name)
 	return in(r, numerals)
 }
-
-var keywords = "者自"
 
 func (p *parser) word() (w *Word) {
 	begin := p.pos
@@ -92,7 +97,7 @@ func (p *parser) word() (w *Word) {
 	for !p.eof() {
 		r := p.peek()
 
-		if in(r, numerals) || in(r, keywords) || in(r, "、，。也\n") {
+		if in(r, numerals) || in(r, keywords) || in(r, wordTerm) {
 			return
 		}
 		p.next()
@@ -119,12 +124,12 @@ func (p *parser) sentence() Sentence {
 		jux = true
 		for !p.eof() {
 			r := p.peek()
-			if in(r, "、，") {
+			if in(r, wordSep) {
 				p.next()
 				jux = false
-			} else if in(r, "。也\n") {
+			} else if in(r, sentenceSep) {
 				p.next()
-				for in(p.peek(), "。也\n") {
+				for in(p.peek(), sentenceSep) {
 					p.next()
 				}
 				return s
